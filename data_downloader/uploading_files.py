@@ -7,13 +7,14 @@ import os
 import logging
 import subprocess
 import shutil
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("DataDownloader")
 
 date = (datetime.now() - timedelta(days=5)).strftime("%Y-%m-%d")
-
 link = f"https://api.simurg.space/datafiles/map_files?date={date}"
 file_name = f"{date}.zip"
+
 
 def download_file(url, file_name):
     with open(file_name, "wb") as f:
@@ -48,7 +49,7 @@ def decompress_gz_files(directory):
         for file in files:
             if file.endswith(".gz"):
                 gz_file_path = os.path.join(root, file)
-                output_file_path = os.path.join(root, file[:-3])  # Удаление расширения .gz
+                output_file_path = os.path.join(root, file[:-3])
                 with gzip.open(gz_file_path, 'rb') as gz_file:
                     with open(output_file_path, 'wb') as out_file:
                         out_file.write(gz_file.read())
@@ -57,8 +58,32 @@ def decompress_gz_files(directory):
                 logger.info(f"Удален {gz_file_path}")
 
 
+def decompress_z_files(directory):
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            if file.endswith(".z") or file.endswith(".Z"):
+                z_file_path = os.path.join(root, file)
+                output_file_path = os.path.join(root, file[:-2])
+                try:
+                    with open(z_file_path, 'rb') as f_in:
+                        with open(output_file_path, 'wb') as f_out:
+                            shutil.copyfileobj(f_in, f_out)
+                    logger.info(f"Декомпрессирован {z_file_path} в {output_file_path}")
+                except Exception as e:
+                    logger.error(f"Ошибка декомпрессии {z_file_path}: {e}")
+                else:
+                    if os.path.exists(z_file_path):
+                        os.remove(z_file_path)
+                        logger.info(f"Удален {z_file_path}")
+
+
+def ensure_directory_exists(directory):
+    if not os.path.exists(directory):
+        os.makedirs(directory, exist_ok=True)
+
+
 def convert_crx_to_rnx(directory):
-    crx2rnx_path = "CRX2RNX" 
+    crx2rnx_path = "CRX2RNX"
     if not shutil.which(crx2rnx_path):
         logger.error(f"Команда {crx2rnx_path} не найдена. Убедитесь, что инструмент установлен и доступен в PATH.")
         sys.exit(1)
@@ -67,23 +92,33 @@ def convert_crx_to_rnx(directory):
         for file in files:
             if file.endswith(".crx"):
                 crx_file_path = os.path.join(root, file)
-                rnx_file_path = os.path.join(root, file.replace(".crx", ".rnx"))
+                rnx_folder_name = file.split("_")[0]
+                rnx_folder_path = os.path.join(root, rnx_folder_name)
+
+                ensure_directory_exists(rnx_folder_path)
+
                 command = f"{crx2rnx_path} {crx_file_path} -f -d"
                 try:
                     subprocess.run(command, check=True, shell=True)
-                    logger.info(f"Конвертирован {crx_file_path} в {rnx_file_path}")
-                except subprocess.CalledProcessError as e:
-                    logger.error(f"Ошибка конвертации {crx_file_path}: {e}")
-                else:
+                    rnx_file_path = crx_file_path.replace(".crx", ".rnx")
+                    target_rnx_file_path = os.path.join(rnx_folder_path, os.path.basename(rnx_file_path))
+                    shutil.move(rnx_file_path, target_rnx_file_path)
+                    logger.info(f"Конвертирован {crx_file_path} в {target_rnx_file_path}")
+
                     if os.path.exists(crx_file_path):
                         os.remove(crx_file_path)
-                        logger.info(f"Удален {crx_file_path} после конвертации в {rnx_file_path}")
+                        logger.info(f"Удален {crx_file_path} после успешной конвертации и перемещения")
+                except subprocess.CalledProcessError as e:
+                    logger.error(f"Ошибка конвертации {crx_file_path}: {e}")
+                except Exception as e:
+                    logger.error(f"Ошибка перемещения файла {rnx_file_path} в {target_rnx_file_path}: {e}")
 
 
 if __name__ == "__main__":
     download_file(link, file_name)
     unzip_file(file_name, date)
     decompress_gz_files(date)
+    decompress_z_files(date)
     convert_crx_to_rnx(date)
 
     logger.info("Все файлы успешно загружены, декомпрессированы и конвертированы")
