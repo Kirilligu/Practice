@@ -1,0 +1,14 @@
+[Unit]
+Description=Upload and process GNSS data files
+After=network.target
+
+[Service]
+User=kirill
+WorkingDirectory=/home/kirill/Practice
+ExecStart=/usr/bin/python3 /home/kirill/Practice/uploading_files.py
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=uploading_files
+
+[Install]
+WantedBy=multi-user.target
