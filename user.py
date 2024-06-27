@@ -1,15 +1,38 @@
+import os
 import sys
 import datetime
 import paho.mqtt.client as mqtt_client
 import time
 import threading
 import random
+import logging
+
+log_directory = "logs"
+if not os.path.exists(log_directory):
+    os.makedirs(log_directory)
+    
+log_file = os.path.join(log_directory, "receiver_service.log")
+
+logger = logging.getLogger("ReceiverService")
+logger.setLevel(logging.DEBUG)
+
+file_handler = logging.FileHandler(log_file)
+file_handler.setLevel(logging.DEBUG)
+file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+file_handler.setFormatter(file_formatter)
+logger.addHandler(file_handler)
+
+console_handler = logging.StreamHandler(sys.stdout)
+console_handler.setLevel(logging.INFO)
+console_formatter = logging.Formatter('%(message)s')
+console_handler.setFormatter(console_formatter)
+logger.addHandler(console_handler)
 
 broker = "broker.emqx.io"
 topic_prefix = "gnss/data/"
 
-processed_messages = []
-subscription_event = threading.Event() 
+processed_messages = set()
+subscription_event = threading.Event()
 
 def on_message(client, userdata, message):
     data = str(message.payload.decode("utf-8"))
@@ -27,12 +50,12 @@ def on_message(client, userdata, message):
         current_time = datetime.datetime.utcnow()
 
         if abs((current_time - original_time).total_seconds()) <= 30:
-            processed_messages.append(data)
+            processed_messages.add(data)
+            logger.info(f"Processed message: {data}")
     except ValueError as e:
-        print(f"Error parsing message: {e}")
-        print(f"Failed to parse time from message part: {data}")
+        logger.error(f"Error parsing message: {e} - {data}")
     except Exception as e:
-        print(f"Unexpected error: {e}")
+        logger.error(f"Unexpected error: {e} - {data}")
 
 client = mqtt_client.Client('user')
 client.on_message = on_message
@@ -42,10 +65,10 @@ def subscribe_to_topic(receiver_name):
         client.connect(broker)
         client.loop_start()
         client.subscribe(f"{topic_prefix}{receiver_name}")
-        print(f"Subscribed to topic: {topic_prefix}{receiver_name}")
+        logger.info(f"Subscribed to topic: {topic_prefix}{receiver_name}")
         subscription_event.set()
     except Exception as ex:
-        print(f"Error subscribing to topic: {ex}")
+        logger.error(f"Error subscribing to topic: {ex}")
         client.disconnect()
 
 def publish_simulated_data(receiver_name):
@@ -63,29 +86,35 @@ def publish_simulated_data(receiver_name):
             p_range_tec = random.uniform(-50.0, 50.0)
 
             message = f"{message_time.strftime('%Y-%m-%d %H:%M:%S')} {selected_gnss}: {phase_tec} {p_range_tec}"
-            try:
-                client.publish(f"{topic_prefix}{receiver_name}", message)
-                print(f"Published message: {message}")
-            except Exception as ex:
-                print(f"Failed to send message to topic {topic_prefix}{receiver_name}: {ex}")
+            if message not in processed_messages:
+                try:
+                    client.publish(f"{topic_prefix}{receiver_name}", message)
+                    print(f"Published message: {message}")
+                    logger.info(f"Published message: {message}")
+                    processed_messages.add(message)
+                except Exception as ex:
+                    logger.error(f"Failed to send message to topic {topic_prefix}{receiver_name}: {ex}")
             start_time = message_time
         time.sleep(1)
+
+def thread_exception_handler(args):
+    if issubclass(args.exc_type, Exception):
+        logger.error(f"Exception in thread {args.thread.name}: ", exc_info=(args.exc_type, args.exc_value, args.exc_traceback))
 
 if __name__ == "__main__":
     try:
         receiver_name = input("Enter receiver name to subscribe (or 'exit' to quit): ")
         if receiver_name.lower() != 'exit':
+            threading.excepthook = thread_exception_handler
             subscribe_to_topic(receiver_name)
             publisher_thread = threading.Thread(target=publish_simulated_data, args=(receiver_name,))
             publisher_thread.start()
             client.loop_forever()
         else:
             sys.exit(0)
-
     except KeyboardInterrupt:
-        print("Interrupted by user")
+        logger.info("Interrupted by user")
         client.disconnect()
-
     except Exception as ex:
-        print(f"An unexpected error occurred: {ex}")
+        logger.error(f"An unexpected error occurred: {ex}")
         client.disconnect()
