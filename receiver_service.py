@@ -9,7 +9,7 @@ from daemonize import Daemonize
 
 broker = "broker.emqx.io"
 topic_prefix = "gnss/data/"
-log_dir = "/path/to/logs"
+log_dir = "logs"
 data_dir = "/home/kirill/Practice/rnx_files"
 
 # Убедитесь, что директория для логов существует
