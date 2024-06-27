@@ -75,3 +75,7 @@
    sudo apt install mosquitto
    sudo systemctl start mosquitto
   ```
+8. Установите утилиту CRX2RNX в свою виртуальную среду. Перейдите в директорию CRX2RNX и напишите
+  ```
+   sudo cp RNX2CRX CRX2RNX /usr/local/bin/
+  ```
