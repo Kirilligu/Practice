@@ -40,19 +40,19 @@
    ```
 4. Скопируйте файлы сервисов в /etc/systemd/system/ :
    ```
-  sudo cp services/*.service /etc/systemd/system/
+    sudo cp services/*.service /etc/systemd/system/
    ```
 
 5. Отредактируйте их, изменив данные пути на свои
    ```
-   sudo nano /etc/systemd/system/receiver.service
-   sudo nano /etc/systemd/system/uploading_files.service
+    sudo nano /etc/systemd/system/receiver.service
+    sudo nano /etc/systemd/system/uploading_files.service
    ```
 6. Запустите службы и проверьте их работоспособность:
   ```
-  sudo systemctl daemon-reload
-  sudo systemctl enable receiver.service uploading_files.service
-  sudo systemctl start receiver.service uploading_files.service
-  sudo systemctl status receiver.service
-  sudo systemctl status uploading_files.service
+   sudo systemctl daemon-reload
+   sudo systemctl enable receiver.service uploading_files.service
+   sudo systemctl start receiver.service uploading_files.service
+   sudo systemctl status receiver.service
+   sudo systemctl status uploading_files.service
   ```
