@@ -10,7 +10,15 @@ import shutil
 import schedule
 import time
 
-logging.basicConfig(level=logging.INFO)
+log_dir = "logs"
+if not os.path.exists(log_dir):
+    os.makedirs(log_dir, exist_ok=True)
+
+log_file = os.path.join(log_dir, "data_downloader.log")
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    handlers=[logging.FileHandler(log_file), logging.StreamHandler(sys.stdout)])
+
 logger = logging.getLogger("DataDownloader")
 
 def download_file(url, file_name):
@@ -151,5 +159,3 @@ if __name__ == "__main__":
     while True:
         schedule.run_pending()
         time.sleep(60)
-
-  
