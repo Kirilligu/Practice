@@ -44,7 +44,6 @@ class GNSSReceiverDaemon:
             if not self.current_file_path or not os.path.exists(self.current_file_path):
                 self.find_and_process_new_file()
             time.sleep(60)
-
     def find_and_process_new_file(self):
         pattern = os.path.join(data_dir, self.receiver_name, f"{self.receiver_name}_R_*.rnx")
         matching_files = glob.glob(pattern)
