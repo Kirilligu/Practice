@@ -53,51 +53,51 @@
    ```
 4. Скопируйте файлы сервисов в /etc/systemd/system/ :
    ```
-    sudo cp services/*.service /etc/systemd/system/
+   sudo cp services/*.service /etc/systemd/system/
    ```
 
 5. Отредактируйте их, изменив данные и пути на свои
    ```
-    sudo nano /etc/systemd/system/receiver.service
-    sudo nano /etc/systemd/system/uploading_files.service
+   sudo nano /etc/systemd/system/receiver.service
+   sudo nano /etc/systemd/system/uploading_files.service
    ```
 6. Запустите службы и проверьте их работоспособность:
-  ```
+   ```
    sudo systemctl daemon-reload
    sudo systemctl enable receiver.service uploading_files.service
    sudo systemctl start receiver.service uploading_files.service
    sudo systemctl status receiver.service
    sudo systemctl status uploading_files.service
-  ```
+   ```
 7. Установите broker mqtt и запустите его
-  ```
+   ```
    sudo apt update
    sudo apt install mosquitto
    sudo systemctl start mosquitto
-  ```
+   ```
 8. Установите утилиту CRX2RNX в свою виртуальную среду. Перейдите в директорию CRX2RNX и напишите
-  ```
+   ```
    sudo cp RNX2CRX CRX2RNX /usr/local/bin/
-  ```
+   ```
 9. Запустите сервер fastapi
-  ```
+   ```
    uvicorn fastapi_server:app --host 0.0.0.0 --port 8000
-  ```
+   ```
 Чтобы перейти на сервер укажите свой адрес, вместо 0.0.0.0 и напишите в конце /docs
 
 10. Перейдите на сервер и укажите нужный приемник. Например:
 ![image](https://github.com/Kirilligu/Practice/assets/149255706/9eaf0340-d759-4fd8-927e-07071d473504)
 
 11. Для получения данных можете воспользоваться приложением user, запустив его и подписавшись на нужный приемник
-  ```
-   python3 user.py
-  ```
+    ```
+    python3 user.py
+    ```
 
 ### Получить список существующих приемников 
-  ```
-   curl http://localhost:8000/receivers
-  ```
+    ```
+    curl http://localhost:8000/receivers
+    ```
 ### Узнать запущенные процессы 
-  ```
-   curl http://localhost:8000/running
-  ```
+    ```
+    curl http://localhost:8000/running
+    ```
