@@ -56,3 +56,9 @@
    sudo systemctl status receiver.service
    sudo systemctl status uploading_files.service
   ```
+7. Установите broker mqtt и запустите его
+  ```
+   sudo apt update
+   sudo apt install mosquitto
+   sudo systemctl start mosquitto
+  ```
