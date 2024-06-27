@@ -43,7 +43,7 @@
     sudo cp services/*.service /etc/systemd/system/
    ```
 
-5. Отредактируйте их, изменив данные пути на свои
+5. Отредактируйте их, изменив данные и пути на свои
    ```
     sudo nano /etc/systemd/system/receiver.service
     sudo nano /etc/systemd/system/uploading_files.service
