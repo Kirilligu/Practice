@@ -12,16 +12,13 @@ topic_prefix = "gnss/data/"
 log_dir = "logs"
 data_dir = "/home/kirill/Practice/rnx_files"
 
-# Убедитесь, что директория для логов существует
 if not os.path.exists(log_dir):
     os.makedirs(log_dir)
 
-# Настройка логирования
 log_file = os.path.join(log_dir, "receiver_service.log")
 logging.basicConfig(filename=log_file, level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-# Создаем основной логгер
 logger = logging.getLogger("ReceiverService")
 
 class GNSSReceiverDaemon:
