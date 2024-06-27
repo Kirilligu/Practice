@@ -21,7 +21,38 @@
 Описание архитектуры:
 
 
-### Скачивание 
+ 
 
-### Установка
+### Установка и запуск проекта
+1. Установите репозиторий к себе на виртуальную машину
+   ```
+   sudo apt update
+   sudo apt install git
+   git clone https://github.com/Kirilligu/Practice
+   ```
+2. Перейдите в корневую папку
+   ```
+   cd Practice
+   ```
+3. Установите зависимости:
+   ```
+   pip install -r requirements.txt
+   ```
+4. Скопируйте файлы сервисов в /etc/systemd/system/ :
+   ```
+  sudo cp services/*.service /etc/systemd/system/
+   ```
 
+5. Отредактируйте их, изменив данные пути на свои
+   ```
+   sudo nano /etc/systemd/system/receiver.service
+   sudo nano /etc/systemd/system/uploading_files.service
+   ```
+6. Запустите службы и проверьте их работоспособность:
+  ```
+  sudo systemctl daemon-reload
+  sudo systemctl enable receiver.service uploading_files.service
+  sudo systemctl start receiver.service uploading_files.service
+  sudo systemctl status receiver.service
+  sudo systemctl status uploading_files.service
+  ```
