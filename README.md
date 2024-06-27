@@ -14,9 +14,18 @@
 ### Архитектура проекта
 [Ссылка на схему всего проекта](https://drive.google.com/file/d/1OlB7rG7jkOeq_fTVc8vTLBUx4AEaVBn3/view?usp=drive_link).
 
+![alt text](https://github.com/Kirilligu/Practice/blob/main/images/Main_diagram.drawio.png)
+
+
 [Ссылка на схему скачивания данных](https://drive.google.com/file/d/1XxCZ5MK0IkJo-mH3qkU_-7HMMeecx9tS/view?usp=drive_link).
 
+![alt text](https://github.com/Kirilligu/Practice/blob/main/images/Data_download.drawio.png)
+
+
 [Ссылка на схему с блоками проекта](https://drive.google.com/file/d/1J4duBHj3aHXkFYD5pUBur6Nm5JhD-xi0/view?usp=drive_link).
+
+![alt text](https://github.com/Kirilligu/Practice/blob/main/images/F_diagram.drawio.png)
+
 
 Описание архитектуры:
 
